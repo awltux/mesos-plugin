@@ -183,6 +183,8 @@ public class MesosApi {
     this.materializer = ActorMaterializer.create(system);
     this.context = system.dispatcher();
 
+    // The MasterDetector hard-codes  'http' into the returned URL
+    // https://github.com/mesosphere/usi/blob/master/mesos-master-detector/src/main/scala/com/mesosphere/mesos/MasterDetector.scala#L132
     URL masterUrl =
         MasterDetector$.MODULE$
             .apply(master, Metrics.getInstance(frameworkName))
@@ -190,6 +192,10 @@ public class MesosApi {
             .toCompletableFuture()
             .get();
 
+    if (sslCert.isPresent()) {
+      // If cert is defined, assume we are using https connections to master
+      masterUrl = new URL("https", masterUrl.getHost(), masterUrl.getPort(), masterUrl.getFile(), masterUrl.getRef());
+    }
     MesosClientSettings clientSettings =
         MesosClientSettings.load(classLoader).withMasters(Collections.singletonList(masterUrl));
     SchedulerSettings schedulerSettings = SchedulerSettings.load(classLoader);
