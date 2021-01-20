@@ -492,13 +492,15 @@ public class MesosCloud extends AbstractCloudImpl {
 
       mesosMasterUrl = mesosMasterUrl.trim();
       @CheckForNull HttpURLConnection urlConn = null;
+      @CheckForNull URL masterUrl = null;
       try {
-        URL masterUrl =
+        masterUrl =
             MasterDetector$.MODULE$
                 .apply(mesosMasterUrl, org.jenkinsci.plugins.mesos.Metrics.getInstance("no_name"))
                 .getMaster(Implicits$.MODULE$.global())
                 .toCompletableFuture()
                 .get();
+        logger.warn("Zookeeper returned Mesos masterUrl {}", masterUrl);
         urlConn = (HttpURLConnection) masterUrl.openConnection();
         urlConn.connect();
         int code = urlConn.getResponseCode();
@@ -510,7 +512,8 @@ public class MesosCloud extends AbstractCloudImpl {
           return FormValidation.error("Status returned from url was: " + code);
         }
       } catch (IOException e) {
-        logger.warn("Failed to connect to Mesos at {}", mesosMasterUrl, e);
+        logger.warn(
+            "Failed to connect to Mesos at {}", masterUrl == null ? mesosMasterUrl : masterUrl, e);
         return FormValidation.error(e.getMessage());
       } finally {
         if (urlConn != null) {
