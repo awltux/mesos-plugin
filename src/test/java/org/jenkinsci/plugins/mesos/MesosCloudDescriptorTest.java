@@ -17,6 +17,7 @@ public class MesosCloudDescriptorTest {
   void validateMesosMasterUrl(TestUtils.JenkinsRule j) {
     MesosCloud.DescriptorImpl descriptor = new DescriptorImpl();
     assertThat(descriptor.doCheckMesosMasterUrl("http/other").kind, is(Kind.ERROR));
+    assertThat(descriptor.doCheckMesosMasterUrl("https/other").kind, is(Kind.ERROR));
     assertThat(
         descriptor.doCheckMesosMasterUrl("zk://user@pass@localhost:5050").kind, is(Kind.ERROR));
     assertThat(descriptor.doCheckMesosMasterUrl("zk://localhost:5050").kind, is(Kind.OK));
@@ -62,6 +63,7 @@ public class MesosCloudDescriptorTest {
   void validateJenkinsUrl(TestUtils.JenkinsRule j) {
     MesosCloud.DescriptorImpl descriptor = new DescriptorImpl();
     assertThat(descriptor.doCheckJenkinsUrl("http/other").kind, is(Kind.ERROR));
+    assertThat(descriptor.doCheckJenkinsUrl("https/other").kind, is(Kind.ERROR));
     assertThat(descriptor.doCheckJenkinsUrl("zk://localhost:5050").kind, is(Kind.ERROR));
     assertThat(descriptor.doCheckJenkinsUrl("http://localhost:5050").kind, is(Kind.OK));
     assertThat(descriptor.doCheckJenkinsUrl("https://localhost:5050").kind, is(Kind.OK));
